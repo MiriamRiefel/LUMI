@@ -166,14 +166,12 @@ public void draw() {
   
   // Display an image prompted by the POV Hat (1-8)
   if (imageNumber != 0) {
-    println(imageNumber);
+    println(imageNames[imageNumber - 1]);
     int imgWidth = screenWidth/2;
     image(images[imageNumber-1], 0, 0, imgWidth, screenHeight);
     image(images[imageNumber-1], imgWidth, 0, imgWidth, screenHeight);
-    println(imageNumber);
   }
-  
-
+ 
   noCursor();
 }
 
