@@ -11,4 +11,4 @@ RS	button RS	1	BUTTON	Button 5	0	0.0	0.0
 START	button START	1	BUTTON	Button 9	0	0.0	0.0
 BACK	button BACK	1	BUTTON	Button 8	0	0.0	0.0
 POV	button POV	2	HAT	cooliehat: Hat Switch	0	0.0	0.0
-
+DILATE	button DILATE	1	BUTTON	Button 4	0	0.0	0.0	

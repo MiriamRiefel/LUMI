@@ -34,6 +34,7 @@ PImage eyeImg;
 int imageNumber;
 float pupilPosX, pupilPosY, pupilSize;
 boolean blink;
+boolean dilate;
 
 //The image names in the folder that can be activated with the POV hat
 String[] imageNames = {
@@ -85,9 +86,7 @@ public void setup() {
 }
 boolean playing;
 public void getUserInput() {
-  // Either button will dilate pupils
-  // boolean dilated = gpad.getButton("PUPILSIZE1").pressed() || gpad.getButton("PUPILSIZE2").pressed();
-  //pupilSize = dilated ? irisSize * 0.6f : irisSize * 0.45f;
+  dilate = gpad.getButton("DILATE").pressed();
   pupilPosX =   map(gpad.getSlider("XPOS").getValue(), -1, 1, 0, screenWidth/2);
   pupilPosY =   map(gpad.getSlider("YPOS").getValue(), -1, 1, 0, screenHeight);
   blink = gpad.getButton("EYELID").pressed();
@@ -137,6 +136,12 @@ int blinkTimer, nextBlinkTime, blinkDuration;
 int eyeTimer, nextEyeTime, eyeOffsetX, eyeOffsetY;
 int mode = 0;
 
+//pupil constants
+float minPupilSize = eyeSize * 0.45f;
+float maxPupilSize = eyeSize * 0.6f;
+float dilationSpeed = 0.1f;
+float contractionSpeed = 0.05f;
+
 public void draw() {
   getUserInput(); // Poll the input device
   background(127);
@@ -145,6 +150,7 @@ public void draw() {
 
   eyeX = (pupilPosX + eyeOffsetX)* 0.10 + prevEyeX * 0.90;
   eyeY = (pupilPosY + eyeOffsetY)* 0.10 + prevEyeY * 0.90;
+  
   if (millis()>blinkTimer+nextBlinkTime) {
     blinkTimer = millis();
     nextBlinkTime = (int)random(4000, 15000);
@@ -160,6 +166,7 @@ public void draw() {
 
   prevEyeX = eyeX;
   prevEyeY = eyeY;
+  
   if (blinkDuration>0) drawEyes((int)eyeX, (int)eyeY, true);
   else drawEyes((int)eyeX, (int)eyeY, blink);
 
@@ -171,7 +178,17 @@ public void draw() {
     image(images[imageNumber-1], 0, 0, imgWidth, screenHeight);
     image(images[imageNumber-1], imgWidth, 0, imgWidth, screenHeight);
   }
- 
+  
+  // Prompted pupil dilation
+  if (dilate) {
+      pupilSize += (maxPupilSize - pupilSize) * dilationSpeed;
+  } 
+  else {
+      pupilSize += (minPupilSize - pupilSize) * contractionSpeed;
+  }
+  
+  pupilSize = constrain(pupilSize, minPupilSize, maxPupilSize);
+    
   noCursor();
 }
 
@@ -196,8 +213,8 @@ public void drawEyes(int x, int y, boolean blink) {
   ellipse(x, y, eyeSize, eyeSize);
   ellipse(x+screenWidth/2, y, eyeSize, eyeSize);
   fill(0);
-  ellipse(x, y, eyeSize/2, eyeSize/2);
-  ellipse(x+screenWidth/2, y, eyeSize/2, eyeSize/2);
+  ellipse(x, y, pupilSize, pupilSize);
+  ellipse(x+screenWidth/2, y, pupilSize, pupilSize);
   if (blink == true) dLid = -eyeSize/10;
   else dLid = eyeSize/10;
   upperValue += dLid;
