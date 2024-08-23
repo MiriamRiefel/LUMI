@@ -137,10 +137,14 @@ int eyeTimer, nextEyeTime, eyeOffsetX, eyeOffsetY;
 int mode = 0;
 
 //pupil constants
-float minPupilSize = eyeSize * 0.45f;
-float maxPupilSize = eyeSize * 0.6f;
+float minPupilSize = eyeSize * 0.4f;
+float maxPupilSize = eyeSize * 0.7f;
+float basePupilSize = eyeSize * 0.55f;
 float dilationSpeed = 0.1f;
 float contractionSpeed = 0.05f;
+int lastEyeMoveTime = 0;
+int eyeMoveThreshold = 200; // Time in milliseconds to consider eyes as focused
+boolean isFocusing = false;
 
 public void draw() {
   getUserInput(); // Poll the input device
@@ -150,6 +154,16 @@ public void draw() {
 
   eyeX = (pupilPosX + eyeOffsetX)* 0.10 + prevEyeX * 0.90;
   eyeY = (pupilPosY + eyeOffsetY)* 0.10 + prevEyeY * 0.90;
+  
+  // Detect eye movement
+  if (abs(eyeX - prevEyeX) > 0.5 || abs(eyeY - prevEyeY) > 0.5) {
+    lastEyeMoveTime = millis(); // Update last eye move time
+    isFocusing = false; // Not focusing
+  } else {
+    if (millis() - lastEyeMoveTime > eyeMoveThreshold) {
+      isFocusing = true; // Eyes are stationary long enough
+    }
+  }
   
   if (millis()>blinkTimer+nextBlinkTime) {
     blinkTimer = millis();
@@ -179,14 +193,15 @@ public void draw() {
     image(images[imageNumber-1], imgWidth, 0, imgWidth, screenHeight);
   }
   
-  // Prompted pupil dilation
+  // Update pupil size based on focus and dilate button
   if (dilate) {
-      pupilSize += (maxPupilSize - pupilSize) * dilationSpeed;
-  } 
-  else {
-      pupilSize += (minPupilSize - pupilSize) * contractionSpeed;
+    pupilSize += (maxPupilSize - pupilSize) * dilationSpeed;
+  } else if (isFocusing) {
+    pupilSize += (minPupilSize - pupilSize) * contractionSpeed; // Enlarge pupils if focusing
+  } else {
+    pupilSize += (basePupilSize - pupilSize) * contractionSpeed; // Contract pupils if not focusing
   }
-  
+
   pupilSize = constrain(pupilSize, minPupilSize, maxPupilSize);
     
   noCursor();
