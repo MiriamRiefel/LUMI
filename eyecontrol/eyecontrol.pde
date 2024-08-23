@@ -31,16 +31,36 @@ int upperValue = eyeSize/2;
 
 PImage eyeImg;
 
+int imageNumber;
 float pupilPosX, pupilPosY, pupilSize;
 boolean blink;
 
+//The image names in the folder that can be activated with the POV hat
+String[] imageNames = {
+   "lumi-battery.jpg",
+   "lumi-classified.jpg",
+   "lumi-map.jpg",
+   "lumi-noconnection.jpg",
+   "lumi-ok.jpg",
+   "lumi-wait.jpg",
+   "lumi-warning.jpg",
+   "lumi-weather.jpg"
+};
+
+PImage[] images = new PImage[8];
 
 public void setup() {
-  //size(400, 240);
+  size(400, 240);
   background(0);
-  fullScreen();
+  //fullScreen();
   background(0);
   eyeImg = loadImage("eye.png");
+  
+  // Map the image names to integers 1-8
+  for (int i = 0; i < imageNames.length; i++) {
+    images[i] = loadImage(imageNames[i]);
+  }
+  
   surface.setTitle("LUMI eye control");
   // Initialise the ControlIO
   control = ControlIO.getInstance(this);
@@ -71,6 +91,8 @@ public void getUserInput() {
   pupilPosX =   map(gpad.getSlider("XPOS").getValue(), -1, 1, 0, screenWidth/2);
   pupilPosY =   map(gpad.getSlider("YPOS").getValue(), -1, 1, 0, screenHeight);
   blink = gpad.getButton("EYELID").pressed();
+  imageNumber = gpad.getHat("POV").getPos();
+  
   if (!sndAlarm.isPlaying() && gpad.getButton("B").pressed() && gpad.getButton("RT").pressed()) {
     println("sound alarm");
     sndAlarm.play();
@@ -114,11 +136,13 @@ float eyeX, prevEyeX, eyeY, prevEyeY;
 int blinkTimer, nextBlinkTime, blinkDuration;
 int eyeTimer, nextEyeTime, eyeOffsetX, eyeOffsetY;
 int mode = 0;
+
 public void draw() {
   getUserInput(); // Poll the input device
   background(127);
   fill(255);
   rect(0, 0, screenWidth, screenHeight);
+
   eyeX = (pupilPosX + eyeOffsetX)* 0.10 + prevEyeX * 0.90;
   eyeY = (pupilPosY + eyeOffsetY)* 0.10 + prevEyeY * 0.90;
   if (millis()>blinkTimer+nextBlinkTime) {
@@ -139,6 +163,16 @@ public void draw() {
   if (blinkDuration>0) drawEyes((int)eyeX, (int)eyeY, true);
   else drawEyes((int)eyeX, (int)eyeY, blink);
 
+  
+  // Display an image prompted by the POV Hat (1-8)
+  if (imageNumber != 0) {
+    println(imageNumber);
+    int imgWidth = screenWidth/2;
+    image(images[imageNumber-1], 0, 0, imgWidth, screenHeight);
+    image(images[imageNumber-1], imgWidth, 0, imgWidth, screenHeight);
+    println(imageNumber);
+  }
+  
 
   noCursor();
 }
