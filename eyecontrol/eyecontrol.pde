@@ -197,18 +197,21 @@ public void draw() {
   }
   
   // Update pupil size based on focus and dilate button
-  if (millis() - lastPupilSizeUpdateTime > ((int)random(0,400))) {
-    lastPupilSizeUpdateTime = millis();
+
     
-    if (dilate) {
-      pupilSize += (maxPupilSize - pupilSize) * dilationSpeed;
-    } else if (isFocusing) {
+  if (dilate) {
+    pupilSize += (maxPupilSize - pupilSize) * dilationSpeed;
+  }  
+  
+  else if (millis() - lastPupilSizeUpdateTime > ((int)random(100,500))) {
+    lastPupilSizeUpdateTime = millis();
+    if (isFocusing) {
       pupilSize += (minPupilSize - pupilSize) * contractionSpeed; // Enlarge pupils if focusing
     } else {
       pupilSize += (basePupilSize - pupilSize) * contractionSpeed; // Contract pupils if not focusing
     }
     
-    pupilSize = constrain(pupilSize, minPupilSize, maxPupilSize);
+  pupilSize = constrain(pupilSize, minPupilSize, maxPupilSize);
   }
   noCursor();
 }
