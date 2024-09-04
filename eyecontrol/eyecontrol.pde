@@ -135,16 +135,19 @@ float eyeX, prevEyeX, eyeY, prevEyeY;
 int blinkTimer, nextBlinkTime, blinkDuration;
 int eyeTimer, nextEyeTime, eyeOffsetX, eyeOffsetY;
 int mode = 0;
+int lastPupilSizeUpdateTime = 0;
 
 //pupil constants
-float minPupilSize = eyeSize * 0.4f;
+float minPupilSize = eyeSize * 0.32f;
 float maxPupilSize = eyeSize * 0.7f;
-float basePupilSize = eyeSize * 0.55f;
+float basePupilSize = eyeSize * 0.58f;
 float dilationSpeed = 0.1f;
 float contractionSpeed = 0.05f;
 int lastEyeMoveTime = 0;
 int eyeMoveThreshold = 200; // Time in milliseconds to consider eyes as focused
 boolean isFocusing = false;
+float focusingProbability = 0.4; // Variable to control the probability of being judged as focusing
+
 
 public void draw() {
   getUserInput(); // Poll the input device
@@ -161,7 +164,7 @@ public void draw() {
     isFocusing = false; // Not focusing
   } else {
     if (millis() - lastEyeMoveTime > eyeMoveThreshold) {
-      isFocusing = true; // Eyes are stationary long enough
+      isFocusing = random(1) < focusingProbability;
     }
   }
   
@@ -194,16 +197,19 @@ public void draw() {
   }
   
   // Update pupil size based on focus and dilate button
-  if (dilate) {
-    pupilSize += (maxPupilSize - pupilSize) * dilationSpeed;
-  } else if (isFocusing) {
-    pupilSize += (minPupilSize - pupilSize) * contractionSpeed; // Enlarge pupils if focusing
-  } else {
-    pupilSize += (basePupilSize - pupilSize) * contractionSpeed; // Contract pupils if not focusing
-  }
-
-  pupilSize = constrain(pupilSize, minPupilSize, maxPupilSize);
+  if (millis() - lastPupilSizeUpdateTime > ((int)random(0,400))) {
+    lastPupilSizeUpdateTime = millis();
     
+    if (dilate) {
+      pupilSize += (maxPupilSize - pupilSize) * dilationSpeed;
+    } else if (isFocusing) {
+      pupilSize += (minPupilSize - pupilSize) * contractionSpeed; // Enlarge pupils if focusing
+    } else {
+      pupilSize += (basePupilSize - pupilSize) * contractionSpeed; // Contract pupils if not focusing
+    }
+    
+    pupilSize = constrain(pupilSize, minPupilSize, maxPupilSize);
+  }
   noCursor();
 }
 
