@@ -35,6 +35,7 @@ int imageNumber;
 float pupilPosX, pupilPosY, pupilSize;
 boolean blink;
 boolean dilate;
+int emotionalState;
 
 //The image names in the folder that can be activated with the POV hat
 String[] imageNames = {
@@ -128,6 +129,12 @@ public void getUserInput() {
     println("sound moving");
     sndMove.play();
   }
+  
+  if (!sndYes.isPlaying() && !sndNo.isPlaying() &&
+      !sndCalculate.isPlaying() && !sndAngry.isPlaying()) {
+    emotionalState = 0; //neutral eyes
+  }
+  
   if (gpad.getButton("START").pressed()&& mode == 0){mode = 1;}
   if (gpad.getButton("BACK").pressed()&& mode == 1){mode = 0;}
 }
@@ -224,56 +231,268 @@ public void drawEyes(int x, int y, boolean blink) {
   if (y<0) y = 0;
   if (x<eyeSize/2) x = eyeSize/2;
   if (x>(screenWidth/2-eyeSize/2)) x = (screenWidth/2-eyeSize/2);
-  if(sndAngry.isPlaying()) fill(255, 0, 0, 255);
-  else if (sndCalculate.isPlaying()) fill(255,255,0,200);
-  else if (sndNo.isPlaying()) fill(0,0,255,200);
-  else if (sndYes.isPlaying()) fill(0,255,0,255);
-  else if (sndBreakdown.isPlaying()) fill(0,0,0,255);
-  else fill(0, 255, 100, 200);
+  if(sndAngry.isPlaying()) {
+    fill(255, 0, 0, 255);
+    emotionalState = 4; //angry
+  }
+  else if (sndCalculate.isPlaying()) {
+    fill(255,255,0,200);
+    emotionalState = 3; //calculating
+  }
+  else if (sndNo.isPlaying()) {
+    fill(0,0,255,200);
+    emotionalState = 2; //sad eyes
+  }
+  else if (sndYes.isPlaying()) {
+    fill(0,255,0,255);
+    emotionalState = 1; //happy eyes
+  }
+  else if (sndBreakdown.isPlaying()) {
+    fill(0,0,0,255);
+    emotionalState = 5;
+  }
+  else {
+    fill(0, 255, 100, 200);
+    emotionalState = 0; //default=neutral
+  }
   stroke(0);
   if(mode==0) blink = true;
   //  image(eyeImg, x-144, y-121);
   //  image(eyeImg, x+screenWidth/2-144, y-121);
-  ellipse(x, y, eyeSize, eyeSize);
-  ellipse(x+screenWidth/2, y, eyeSize, eyeSize);
+  
+  int eyeHeight; 
+  if (emotionalState == 1) eyeHeight = y-10;
+  else if (emotionalState == 2) eyeHeight = y+5;
+  else eyeHeight = y;
+  
+  ellipse(x, eyeHeight, eyeSize, eyeSize);
+  ellipse(x+screenWidth/2, eyeHeight, eyeSize, eyeSize);
   fill(0);
-  ellipse(x, y, pupilSize, pupilSize);
-  ellipse(x+screenWidth/2, y, pupilSize, pupilSize);
+  ellipse(x, eyeHeight, pupilSize, pupilSize);
+  ellipse(x+screenWidth/2, eyeHeight, pupilSize, pupilSize);
+  
   if (blink == true) dLid = -eyeSize/10;
   else dLid = eyeSize/10;
   upperValue += dLid;
   if (upperValue>eyeSize/2) upperValue = eyeSize/2;
   if (upperValue<0) upperValue = 0;
 
-  // and now for 4 different eyelids...
-  beginShape();
-  vertex(0, 0);
-  vertex(screenWidth/2, 0);
-  vertex(screenWidth/2, lidMid);
-  bezierVertex(x+eyeSize/4, y-upperValue, x-eyeSize/4, y-upperValue, 0, lidMid);
-  endShape();
-
-  beginShape();
-  vertex(0, screenHeight);
-  vertex(screenWidth/2, screenHeight);
-  vertex(screenWidth/2, lidMid);
-  bezierVertex(x+eyeSize/4, y+upperValue, x-eyeSize/4, y+upperValue, 0, lidMid);
-  endShape();
-
-  beginShape();
-  vertex(screenWidth/2, 0);
-  vertex(screenWidth, 0);
-  vertex(screenWidth, lidMid);
-  bezierVertex(x+screenWidth/2+eyeSize/4, y-upperValue, x+screenWidth/2-eyeSize/4, y-upperValue, screenWidth/2, lidMid);
-  endShape();
-
-  beginShape();
-  vertex(screenWidth/2, screenHeight);
-  vertex(screenWidth, screenHeight);
-  vertex(screenWidth, lidMid);
-  bezierVertex(x+screenWidth/2+eyeSize/4, y+upperValue, x+screenWidth/2-eyeSize/4, y+upperValue, screenWidth/2, lidMid);
-  endShape();
-  noStroke();
+  if (emotionalState == 1) { //happy
+  
+  //upleft
+    beginShape();
+    vertex(0, 0);
+    vertex(screenWidth/2, 0);
+    vertex(screenWidth/2, lidMid);
+    bezierVertex(x+eyeSize/4, y-upperValue*1.5, x-eyeSize/4, y-upperValue*1.2, 0, lidMid);
+    endShape();
+  
+    //lowleft
+    beginShape();
+    vertex(0, screenHeight);
+    vertex(screenWidth/2, screenHeight);
+    vertex(screenWidth/2, lidMid);
+    bezierVertex(x+eyeSize/4, y+upperValue, x-eyeSize/4, y+upperValue, 0, lidMid);
+    endShape();
+  
+   //upright
+    beginShape();
+    vertex(screenWidth/2, 0);
+    vertex(screenWidth, 0);
+    vertex(screenWidth, lidMid);
+    bezierVertex(x+screenWidth/2+eyeSize/4, y-upperValue, x+screenWidth/2-eyeSize/4, y-upperValue, screenWidth/2, lidMid);
+    endShape();
+  
+    //lowright
+    beginShape();
+    vertex(screenWidth/2, screenHeight);
+    vertex(screenWidth, screenHeight);
+    vertex(screenWidth, lidMid);
+    bezierVertex(x+screenWidth/2+eyeSize/4, y+upperValue, x+screenWidth/2-eyeSize/4, y+upperValue, screenWidth/2, lidMid);
+    endShape();
+    noStroke();
+  }
+  
+  if (emotionalState == 1) { //happy
+  
+    //upleft
+    beginShape();
+    vertex(0, 0);
+    vertex(screenWidth/2, 0);
+    vertex(screenWidth/2, lidMid);
+    bezierVertex(x+eyeSize/4, y-upperValue*2, x-eyeSize/4, y-upperValue*2, 0, lidMid);
+    endShape();
+  
+    //lowleft
+    beginShape();
+    vertex(0, screenHeight);
+    vertex(screenWidth/2, screenHeight);
+    vertex(screenWidth/2, lidMid);
+    bezierVertex(x+eyeSize/4, y+upperValue*0.1, x-eyeSize/4, y+upperValue, 0, lidMid);
+    endShape();
+  
+   //upright
+    beginShape();
+    vertex(screenWidth/2, 0);
+    vertex(screenWidth, 0);
+    vertex(screenWidth, lidMid);
+    bezierVertex(x+screenWidth/2+eyeSize/4, y-upperValue*2, x+screenWidth/2-eyeSize/4, y-upperValue*2, screenWidth/2, lidMid);
+    endShape();
+  
+    //lowright
+    beginShape();
+    vertex(screenWidth/2, screenHeight);
+    vertex(screenWidth, screenHeight);
+    vertex(screenWidth, lidMid);
+    bezierVertex(x+screenWidth/2+eyeSize/4, y+upperValue, x+screenWidth/2-eyeSize/4, y+upperValue*0.1, screenWidth/2, lidMid);
+    endShape();
+    noStroke();
+  }
+  
+  else if (emotionalState == 2) { //sad
+  
+  //upleft
+    beginShape();
+    vertex(0, 0);
+    vertex(screenWidth/2, 0);
+    vertex(screenWidth/2, lidMid*0.9);
+    bezierVertex(x, y-upperValue, x-eyeSize/4, y+upperValue, 0, lidMid);
+    endShape();
+  
+    //lowleft
+    beginShape();
+    vertex(0, screenHeight);
+    vertex(screenWidth/2, screenHeight);
+    vertex(screenWidth/2, lidMid*0.9);
+    bezierVertex(x+eyeSize/4, y+upperValue, x-eyeSize/4, y+upperValue, 0, lidMid);
+    endShape();
+  
+   //upright
+    beginShape();
+    vertex(screenWidth/2, 0);
+    vertex(screenWidth, 0);
+    vertex(screenWidth, lidMid);
+    bezierVertex(x+screenWidth/2+eyeSize/4, y+upperValue, x+screenWidth/2-eyeSize/4, y-upperValue, screenWidth/2, lidMid*0.9);
+    endShape();
+  
+    //lowright
+    beginShape();
+    vertex(screenWidth/2, screenHeight);
+    vertex(screenWidth, screenHeight);
+    vertex(screenWidth, lidMid);
+    bezierVertex(x+screenWidth/2+eyeSize/4, y+upperValue, x+screenWidth/2-eyeSize/4, y+upperValue, screenWidth/2, lidMid*0.9);
+    endShape();
+    noStroke();
+  }
+  
+  else if (emotionalState == 3) { //calculating
+  
+    //upleft
+    beginShape();
+    vertex(0, 0);
+    vertex(screenWidth/2, 0);
+    vertex(screenWidth/2, lidMid);
+    bezierVertex(x+eyeSize/4, y-upperValue, x-eyeSize/4, y-upperValue, 0, lidMid);
+    endShape();
+  
+    //lowleft
+    beginShape();
+    vertex(0, screenHeight);
+    vertex(screenWidth/2, screenHeight);
+    vertex(screenWidth/2, lidMid);
+    bezierVertex(x+eyeSize/4, y+upperValue, x-eyeSize/4, y+upperValue, 0, lidMid);
+    endShape();
+  
+   //upright
+    beginShape();
+    vertex(screenWidth/2, 0);
+    vertex(screenWidth, 0);
+    vertex(screenWidth, lidMid);
+    bezierVertex(x+screenWidth/2+eyeSize/4, y-upperValue, x+screenWidth/2-eyeSize/4, y-upperValue, screenWidth/2, lidMid);
+    endShape();
+  
+    //lowright
+    beginShape();
+    vertex(screenWidth/2, screenHeight);
+    vertex(screenWidth, screenHeight);
+    vertex(screenWidth, lidMid);
+    bezierVertex(x+screenWidth/2+eyeSize/4, y+upperValue, x+screenWidth/2-eyeSize/4, y+upperValue, screenWidth/2, lidMid);
+    endShape();
+    noStroke();
+  }
+  
+  else if (emotionalState == 4) { //angry
+   
+    //upleft
+    beginShape();
+    vertex(0, 0);
+    vertex(screenWidth/2, 0);
+    vertex(screenWidth/2, lidMid);
+    bezierVertex(x+eyeSize/4, y+upperValue*2, x-eyeSize/6, y-upperValue*2, 0, lidMid);
+    endShape();
+  
+    //lowleft
+    beginShape();
+    vertex(0, screenHeight);
+    vertex(screenWidth/2, screenHeight);
+    vertex(screenWidth/2, lidMid);
+    bezierVertex(x+eyeSize/4, y+upperValue, x-eyeSize/4, y+upperValue, 0, lidMid);
+    endShape();
+  
+   //upright
+    beginShape();
+    vertex(screenWidth/2, 0);
+    vertex(screenWidth, 0);
+    vertex(screenWidth, lidMid);
+    bezierVertex(x+screenWidth/2+eyeSize/4, y-upperValue*2.5, x+screenWidth/2-eyeSize/2, y+upperValue*2, screenWidth/2, lidMid);
+    endShape();
+  
+    //lowright
+    beginShape();
+    vertex(screenWidth/2, screenHeight);
+    vertex(screenWidth, screenHeight);
+    vertex(screenWidth, lidMid);
+    bezierVertex(x+screenWidth/2+eyeSize/4, y+upperValue, x+screenWidth/2-eyeSize/4, y+upperValue, screenWidth/2, lidMid);
+    endShape();
+    noStroke();
+  }
+  
+  else { //neutral
+  
+  //upleft
+    beginShape();
+    vertex(0, 0);
+    vertex(screenWidth/2, 0);
+    vertex(screenWidth/2, lidMid);
+    bezierVertex(x+eyeSize/4, y-upperValue, x-eyeSize/4, y-upperValue, 0, lidMid);
+    endShape();
+  
+    //lowleft
+    beginShape();
+    vertex(0, screenHeight);
+    vertex(screenWidth/2, screenHeight);
+    vertex(screenWidth/2, lidMid);
+    bezierVertex(x+eyeSize/4, y+upperValue, x-eyeSize/4, y+upperValue, 0, lidMid);
+    endShape();
+  
+   //upright
+    beginShape();
+    vertex(screenWidth/2, 0);
+    vertex(screenWidth, 0);
+    vertex(screenWidth, lidMid);
+    bezierVertex(x+screenWidth/2+eyeSize/4, y-upperValue, x+screenWidth/2-eyeSize/4, y-upperValue, screenWidth/2, lidMid);
+    endShape();
+  
+    //lowright
+    beginShape();
+    vertex(screenWidth/2, screenHeight);
+    vertex(screenWidth, screenHeight);
+    vertex(screenWidth, lidMid);
+    bezierVertex(x+screenWidth/2+eyeSize/4, y+upperValue, x+screenWidth/2-eyeSize/4, y+upperValue, screenWidth/2, lidMid);
+    endShape();
+    noStroke();
+  }
+  
   // clean up the bottom bit
   fill(127);
   rect(0, screenHeight, screenWidth, 2*screenHeight);
