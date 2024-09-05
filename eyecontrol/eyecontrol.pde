@@ -37,6 +37,15 @@ boolean blink;
 boolean dilate;
 int emotionalState;
 
+int squareLastUpdateTime = 0;
+float leftPupilX = 0;
+float leftPupilY = 0;
+float leftPupilSize = 0;
+float rightPupilX = 0;
+float rightPupilY = 0;
+float rightPupilSize = 0;
+
+
 //The image names in the folder that can be activated with the POV hat
 String[] imageNames = {
    "lumi-battery.jpg",
@@ -265,11 +274,36 @@ public void drawEyes(int x, int y, boolean blink) {
   else if (emotionalState == 2) eyeHeight = y+5;
   else eyeHeight = y;
   
+  
+if (emotionalState == 3) {
+  float squareIrisSize = eyeSize / 2;
+  float squarePupilSize = pupilSize / 2;
+  rect(x - squareIrisSize, eyeHeight - squareIrisSize, eyeSize, eyeSize);
+  rect(x + screenWidth / 2 - squareIrisSize, eyeHeight - squareIrisSize, eyeSize, eyeSize);
+  fill(0);
+    
+  if (millis() - squareLastUpdateTime > 400) {
+    leftPupilX = random(x-pupilSize, x);
+    leftPupilY = random(pupilSize, eyeHeight);
+    leftPupilSize = random(5, pupilSize*1.5);
+    rightPupilX = random(x + screenWidth / 2 - pupilSize, x);
+    rightPupilY = random(pupilSize, eyeHeight);
+    rightPupilSize = random(5, pupilSize*1.5);
+    squareLastUpdateTime = millis();
+  }
+  rect(leftPupilX, leftPupilY, leftPupilSize, leftPupilSize);
+  rect(rightPupilX, rightPupilY, rightPupilSize, rightPupilSize);
+  
+} else {
+  // Code for other emotional states (neutral, happy, sad, etc.)
   ellipse(x, eyeHeight, eyeSize, eyeSize);
-  ellipse(x+screenWidth/2, eyeHeight, eyeSize, eyeSize);
+  ellipse(x + screenWidth / 2, eyeHeight, eyeSize, eyeSize);
   fill(0);
   ellipse(x, eyeHeight, pupilSize, pupilSize);
-  ellipse(x+screenWidth/2, eyeHeight, pupilSize, pupilSize);
+  ellipse(x + screenWidth / 2, eyeHeight, pupilSize, pupilSize);
+}
+
+
   
   if (blink == true) dLid = -eyeSize/10;
   else dLid = eyeSize/10;
