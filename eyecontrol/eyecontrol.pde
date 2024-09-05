@@ -276,51 +276,14 @@ public void drawEyes(int x, int y, boolean blink) {
   upperValue += dLid;
   if (upperValue>eyeSize/2) upperValue = eyeSize/2;
   if (upperValue<0) upperValue = 0;
-
-  if (emotionalState == 1) { //happy
-  
-  //upleft
-    beginShape();
-    vertex(0, 0);
-    vertex(screenWidth/2, 0);
-    vertex(screenWidth/2, lidMid);
-    bezierVertex(x+eyeSize/4, y-upperValue*1.5, x-eyeSize/4, y-upperValue*1.2, 0, lidMid);
-    endShape();
-  
-    //lowleft
-    beginShape();
-    vertex(0, screenHeight);
-    vertex(screenWidth/2, screenHeight);
-    vertex(screenWidth/2, lidMid);
-    bezierVertex(x+eyeSize/4, y+upperValue, x-eyeSize/4, y+upperValue, 0, lidMid);
-    endShape();
-  
-   //upright
-    beginShape();
-    vertex(screenWidth/2, 0);
-    vertex(screenWidth, 0);
-    vertex(screenWidth, lidMid);
-    bezierVertex(x+screenWidth/2+eyeSize/4, y-upperValue, x+screenWidth/2-eyeSize/4, y-upperValue, screenWidth/2, lidMid);
-    endShape();
-  
-    //lowright
-    beginShape();
-    vertex(screenWidth/2, screenHeight);
-    vertex(screenWidth, screenHeight);
-    vertex(screenWidth, lidMid);
-    bezierVertex(x+screenWidth/2+eyeSize/4, y+upperValue, x+screenWidth/2-eyeSize/4, y+upperValue, screenWidth/2, lidMid);
-    endShape();
-    noStroke();
-  }
   
   if (emotionalState == 1) { //happy
-  
     //upleft
     beginShape();
     vertex(0, 0);
     vertex(screenWidth/2, 0);
     vertex(screenWidth/2, lidMid);
-    bezierVertex(x+eyeSize/4, y-upperValue*2, x-eyeSize/4, y-upperValue*2, 0, lidMid);
+    bezierVertex(x+eyeSize/4, y-upperValue*1.5, x-eyeSize/4, y-upperValue*1.8, 0, lidMid);
     endShape();
   
     //lowleft
@@ -328,15 +291,15 @@ public void drawEyes(int x, int y, boolean blink) {
     vertex(0, screenHeight);
     vertex(screenWidth/2, screenHeight);
     vertex(screenWidth/2, lidMid);
-    bezierVertex(x+eyeSize/4, y+upperValue*0.1, x-eyeSize/4, y+upperValue, 0, lidMid);
+    bezierVertex(x+eyeSize/4, y+upperValue*0.5, x-eyeSize/4, y+upperValue, 0, lidMid);
     endShape();
   
-   //upright
+    // Upper Right Eye (more pronounced curve)
     beginShape();
     vertex(screenWidth/2, 0);
     vertex(screenWidth, 0);
     vertex(screenWidth, lidMid);
-    bezierVertex(x+screenWidth/2+eyeSize/4, y-upperValue*2, x+screenWidth/2-eyeSize/4, y-upperValue*2, screenWidth/2, lidMid);
+    bezierVertex(x + screenWidth/2 + eyeSize/4, y - upperValue*1.8, x + screenWidth/2 - eyeSize/4, y - upperValue*1.5, screenWidth/2, lidMid);
     endShape();
   
     //lowright
@@ -344,7 +307,7 @@ public void drawEyes(int x, int y, boolean blink) {
     vertex(screenWidth/2, screenHeight);
     vertex(screenWidth, screenHeight);
     vertex(screenWidth, lidMid);
-    bezierVertex(x+screenWidth/2+eyeSize/4, y+upperValue, x+screenWidth/2-eyeSize/4, y+upperValue*0.1, screenWidth/2, lidMid);
+    bezierVertex(x+screenWidth/2+eyeSize/4, y+upperValue, x+screenWidth/2-eyeSize/4, y+upperValue*0.5, screenWidth/2, lidMid);
     endShape();
     noStroke();
   }
@@ -392,7 +355,7 @@ public void drawEyes(int x, int y, boolean blink) {
     vertex(0, 0);
     vertex(screenWidth/2, 0);
     vertex(screenWidth/2, lidMid);
-    bezierVertex(x+eyeSize/4, y-upperValue, x-eyeSize/4, y-upperValue, 0, lidMid);
+    bezierVertex(x+eyeSize/4, y-upperValue*1.5, x-eyeSize/4, y-upperValue*1.5, 0, lidMid);
     endShape();
   
     //lowleft
@@ -400,15 +363,15 @@ public void drawEyes(int x, int y, boolean blink) {
     vertex(0, screenHeight);
     vertex(screenWidth/2, screenHeight);
     vertex(screenWidth/2, lidMid);
-    bezierVertex(x+eyeSize/4, y+upperValue, x-eyeSize/4, y+upperValue, 0, lidMid);
+    bezierVertex(x+eyeSize/4, y+upperValue*1.5, x-eyeSize/4, y+upperValue*1.5, 0, lidMid);
     endShape();
   
-   //upright
+    //upright
     beginShape();
     vertex(screenWidth/2, 0);
     vertex(screenWidth, 0);
     vertex(screenWidth, lidMid);
-    bezierVertex(x+screenWidth/2+eyeSize/4, y-upperValue, x+screenWidth/2-eyeSize/4, y-upperValue, screenWidth/2, lidMid);
+    bezierVertex(x + screenWidth/2 + eyeSize/4, y - upperValue*1.5, x + screenWidth/2 - eyeSize/4, y - upperValue*1.5, screenWidth/2, lidMid);
     endShape();
   
     //lowright
@@ -416,7 +379,7 @@ public void drawEyes(int x, int y, boolean blink) {
     vertex(screenWidth/2, screenHeight);
     vertex(screenWidth, screenHeight);
     vertex(screenWidth, lidMid);
-    bezierVertex(x+screenWidth/2+eyeSize/4, y+upperValue, x+screenWidth/2-eyeSize/4, y+upperValue, screenWidth/2, lidMid);
+    bezierVertex(x+screenWidth/2+eyeSize/4, y+upperValue*1.5, x+screenWidth/2-eyeSize/4, y+upperValue*1.5, screenWidth/2, lidMid);
     endShape();
     noStroke();
   }
