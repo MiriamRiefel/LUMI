@@ -29,8 +29,6 @@ int screenHeight = 80;
 int eyeSize = 5*screenHeight/8;
 int upperValue = eyeSize/2;
 
-PImage eyeImg;
-
 int imageNumber;
 float pupilPosX, pupilPosY, pupilSize;
 boolean blink;
@@ -44,7 +42,6 @@ float leftPupilSize = 0;
 float rightPupilX = 0;
 float rightPupilY = 0;
 float rightPupilSize = 0;
-
 
 //The image names in the folder that can be activated with the POV hat
 String[] imageNames = {
@@ -65,7 +62,6 @@ public void setup() {
   background(0);
   //fullScreen();
   background(0);
-  eyeImg = loadImage("eye.png");
   
   // Map the image names to integers 1-8
   for (int i = 0; i < imageNames.length; i++) {
@@ -164,6 +160,18 @@ int eyeMoveThreshold = 200; // Time in milliseconds to consider eyes as focused
 boolean isFocusing = false;
 float focusingProbability = 0.4; // Variable to control the probability of being judged as focusing
 
+public void drawImage(String imageName, float scale, float x, float y) {
+  PImage img = loadImage(imageName);
+  float scaledSize = img.width*scale;
+  image(img, x - scaledSize/2, y - scaledSize/2, scaledSize, scaledSize);
+}
+
+public void drawCropImage(String imageName, float x, float y, float xBias, float yBias, int screenWidth, int screenHeight, int xOffset){
+  PImage img = loadImage(imageName);
+  PImage imgCrop = img.get(int(img.width/2 - x + xBias), int(img.height/2 - y + yBias), screenWidth/2, screenHeight);
+  image(imgCrop, xOffset, 0);
+}
+
 
 public void draw() {
   getUserInput(); // Poll the input device
@@ -213,8 +221,6 @@ public void draw() {
   }
   
   // Update pupil size based on focus and dilate button
-
-    
   if (dilate) {
     pupilSize += (maxPupilSize - pupilSize) * dilationSpeed;
   }  
@@ -275,13 +281,14 @@ public void drawEyes(int x, int y, boolean blink) {
   else eyeHeight = y;
   
   
-if (emotionalState == 3) {
+if (emotionalState == 3) { //silly calculation eye animation - this i'm still going to adapt, to fit with the new style!
   float squareIrisSize = eyeSize / 2;
   float squarePupilSize = pupilSize / 2;
+  //irises
   rect(x - squareIrisSize, eyeHeight - squareIrisSize, eyeSize, eyeSize);
   rect(x + screenWidth / 2 - squareIrisSize, eyeHeight - squareIrisSize, eyeSize, eyeSize);
+  //pupils
   fill(0);
-    
   if (millis() - squareLastUpdateTime > 400) {
     leftPupilX = random(x-pupilSize, x);
     leftPupilY = random(pupilSize, eyeHeight);
@@ -294,14 +301,42 @@ if (emotionalState == 3) {
   rect(leftPupilX, leftPupilY, leftPupilSize, leftPupilSize);
   rect(rightPupilX, rightPupilY, rightPupilSize, rightPupilSize);
   
-} else {
-  // Code for other emotional states (neutral, happy, sad, etc.)
-  ellipse(x, eyeHeight, eyeSize, eyeSize);
-  ellipse(x + screenWidth / 2, eyeHeight, eyeSize, eyeSize);
-  fill(0);
-  ellipse(x, eyeHeight, pupilSize, pupilSize);
-  ellipse(x + screenWidth / 2, eyeHeight, pupilSize, pupilSize);
-}
+  } else {
+    //first the background
+    drawCropImage("bg.png", x, eyeHeight, 0, 0, screenWidth, screenHeight, screenWidth/2);
+    drawCropImage("bg.png", x, eyeHeight, 0, 0, screenWidth, screenHeight, 0);
+    
+    //then the iris
+    drawImage("eye2a.png", 1, x, eyeHeight);
+    drawImage("eye2a.png", 1, x + screenWidth / 2, eyeHeight);
+    drawImage("eye2b.png", 1, x, eyeHeight);
+    drawImage("eye2b.png", 1, x + screenWidth / 2, eyeHeight); 
+    
+    // now the pupils, they resize according to dilation/contraction (some layers more than others with the pow function)
+    float pupilScale = pupilSize / (eyeSize/2); 
+    drawImage("eye2c.png", pupilScale, x, eyeHeight);
+    drawImage("eye2c.png", pupilScale, x + screenWidth / 2, eyeHeight);
+    drawImage("eye2d.png", pow(pupilScale, 2), x, eyeHeight);
+    drawImage("eye2d.png", pow(pupilScale, 2), x + screenWidth / 2, eyeHeight);  
+    drawImage("eye2e.png", pupilScale, x, eyeHeight);
+    drawImage("eye2e.png", pupilScale, x + screenWidth / 2, eyeHeight);  
+    drawImage("eye2f.png", pow(pupilScale, 3), x, eyeHeight);
+    drawImage("eye2f.png", pow(pupilScale, 3), x + screenWidth / 2, eyeHeight);  
+    
+    // and some extra decoration
+    drawCropImage("eye2g.png", x, eyeHeight, 0, 1.3, screenWidth, screenHeight, screenWidth/2);
+    drawCropImage("eye2g-flip.png", x, eyeHeight, 0, -1.3, screenWidth, screenHeight, 0);
+    drawCropImage("eye2h.png", x, eyeHeight, 0, 0, screenWidth, screenHeight, screenWidth/2);
+    drawCropImage("eye2h-flip.png", x, eyeHeight, 0, 0, screenWidth, screenHeight, 0);
+    drawCropImage("eye2i.png", x, eyeHeight, 0, 0, screenWidth, screenHeight, screenWidth/2);
+    drawCropImage("eye2i.png", x, eyeHeight, 0, 0, screenWidth, screenHeight, 0);
+    drawCropImage("eye2j.png", x, eyeHeight, 0, 0, screenWidth, screenHeight, screenWidth/2);
+    drawCropImage("eye2j-flip.png", x, eyeHeight, 0, 0, screenWidth, screenHeight, 0);
+    drawCropImage("eye2k.png", x, eyeHeight, 0, 0, screenWidth, screenHeight, screenWidth/2);
+    drawCropImage("eye2k-flip.png", x, eyeHeight, 0, 0, screenWidth, screenHeight, 0);
+    
+    fill(0);
+  }
 
 
   
@@ -311,6 +346,8 @@ if (emotionalState == 3) {
   if (upperValue>eyeSize/2) upperValue = eyeSize/2;
   if (upperValue<0) upperValue = 0;
   
+  
+  // finally the drawing of the eyelids according to the emotional state!
   if (emotionalState == 1) { //happy
     //upleft
     beginShape();
