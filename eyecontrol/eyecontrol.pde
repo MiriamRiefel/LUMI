@@ -160,6 +160,11 @@ int eyeMoveThreshold = 200; // Time in milliseconds to consider eyes as focused
 boolean isFocusing = false;
 float focusingProbability = 0.4; // Variable to control the probability of being judged as focusing
 
+//for animation of calculating
+int currentRotation = 0;
+int lastRotationTime = 0; 
+int rotationInterval = 100;
+
 public void drawImage(String imageName, float scale, float x, float y) {
   PImage img = loadImage(imageName);
   float scaledSize = img.width*scale;
@@ -280,63 +285,65 @@ public void drawEyes(int x, int y, boolean blink) {
   else if (emotionalState == 2) eyeHeight = y+5;
   else eyeHeight = y;
   
+  //first the background
+  drawCropImage("bg.png", x, eyeHeight, 0, 0, screenWidth, screenHeight, screenWidth/2);
+  drawCropImage("bg.png", x, eyeHeight, 0, 0, screenWidth, screenHeight, 0);
   
-if (emotionalState == 3) { //silly calculation eye animation - this i'm still going to adapt, to fit with the new style!
-  float squareIrisSize = eyeSize / 2;
-  float squarePupilSize = pupilSize / 2;
-  //irises
-  rect(x - squareIrisSize, eyeHeight - squareIrisSize, eyeSize, eyeSize);
-  rect(x + screenWidth / 2 - squareIrisSize, eyeHeight - squareIrisSize, eyeSize, eyeSize);
-  //pupils
+  //then the iris
+  drawImage("eye2a.png", 1, x, eyeHeight);
+  drawImage("eye2a.png", 1, x + screenWidth / 2, eyeHeight);
+  drawImage("eye2b.png", 1, x, eyeHeight);
+  drawImage("eye2b.png", 1, x + screenWidth / 2, eyeHeight); 
+  
+  // now the pupils, they resize according to dilation/contraction (some layers more than others with the pow function)
+  float pupilScale = pupilSize / (eyeSize/2); 
+  drawImage("eye2c.png", pupilScale, x, eyeHeight);
+  drawImage("eye2c.png", pupilScale, x + screenWidth / 2, eyeHeight);
+  drawImage("eye2d.png", pow(pupilScale, 2), x, eyeHeight);
+  drawImage("eye2d.png", pow(pupilScale, 2), x + screenWidth / 2, eyeHeight);  
+  drawImage("eye2e.png", pupilScale, x, eyeHeight);
+  drawImage("eye2e.png", pupilScale, x + screenWidth / 2, eyeHeight);  
+  drawImage("eye2f.png", pow(pupilScale, 3), x, eyeHeight);
+  drawImage("eye2f.png", pow(pupilScale, 3), x + screenWidth / 2, eyeHeight);  
+  
+  // and some extra decoration
+  drawCropImage("eye2g.png", x, eyeHeight, 0, 1.3, screenWidth, screenHeight, screenWidth/2);
+  drawCropImage("eye2g-flip.png", x, eyeHeight, 0, -1.3, screenWidth, screenHeight, 0);
+  drawCropImage("eye2h.png", x, eyeHeight, 0, 0, screenWidth, screenHeight, screenWidth/2);
+  drawCropImage("eye2h-flip.png", x, eyeHeight, 0, 0, screenWidth, screenHeight, 0);
+  drawCropImage("eye2j.png", x, eyeHeight, 0, 0, screenWidth, screenHeight, screenWidth/2);
+  drawCropImage("eye2j-flip.png", x, eyeHeight, 0, 0, screenWidth, screenHeight, 0);
+  drawCropImage("eye2k.png", x, eyeHeight, 0, 0, screenWidth, screenHeight, screenWidth/2);
+  drawCropImage("eye2k-flip.png", x, eyeHeight, 0, 0, screenWidth, screenHeight, 0);
+  
+  // some calculation animation
+  if (emotionalState == 3) {
+    String[] rotatingImgs;
+    rotatingImgs = new String[8];
+    rotatingImgs[0] = "eye2i.png";
+    rotatingImgs[1] = "eye2i-r1.png";
+    rotatingImgs[2] = "eye2i-r2.png";
+    rotatingImgs[3] = "eye2i-r3.png";
+    rotatingImgs[4] = "eye2i-r4.png";
+    rotatingImgs[5] = "eye2i-r5.png";
+    rotatingImgs[6] = "eye2i-r6.png";
+    rotatingImgs[7] = "eye2i-r7.png";
+      
+    int currentTime = millis();
+    if (currentTime - lastRotationTime >= rotationInterval) {
+      lastRotationTime = currentTime;
+      currentRotation = (currentRotation + 1) % rotatingImgs.length;
+    }
+    drawCropImage(rotatingImgs[currentRotation], x, eyeHeight, 0, 0, screenWidth, screenHeight, screenWidth/2);
+    drawCropImage(rotatingImgs[currentRotation], x, eyeHeight, 0, 0, screenWidth, screenHeight, 0);
+  
+    
+  
+
+  }
+
   fill(0);
-  if (millis() - squareLastUpdateTime > 400) {
-    leftPupilX = random(x-pupilSize, x);
-    leftPupilY = random(pupilSize, eyeHeight);
-    leftPupilSize = random(5, pupilSize*1.5);
-    rightPupilX = random(x + screenWidth / 2 - pupilSize, x);
-    rightPupilY = random(pupilSize, eyeHeight);
-    rightPupilSize = random(5, pupilSize*1.5);
-    squareLastUpdateTime = millis();
-  }
-  rect(leftPupilX, leftPupilY, leftPupilSize, leftPupilSize);
-  rect(rightPupilX, rightPupilY, rightPupilSize, rightPupilSize);
-  
-  } else {
-    //first the background
-    drawCropImage("bg.png", x, eyeHeight, 0, 0, screenWidth, screenHeight, screenWidth/2);
-    drawCropImage("bg.png", x, eyeHeight, 0, 0, screenWidth, screenHeight, 0);
-    
-    //then the iris
-    drawImage("eye2a.png", 1, x, eyeHeight);
-    drawImage("eye2a.png", 1, x + screenWidth / 2, eyeHeight);
-    drawImage("eye2b.png", 1, x, eyeHeight);
-    drawImage("eye2b.png", 1, x + screenWidth / 2, eyeHeight); 
-    
-    // now the pupils, they resize according to dilation/contraction (some layers more than others with the pow function)
-    float pupilScale = pupilSize / (eyeSize/2); 
-    drawImage("eye2c.png", pupilScale, x, eyeHeight);
-    drawImage("eye2c.png", pupilScale, x + screenWidth / 2, eyeHeight);
-    drawImage("eye2d.png", pow(pupilScale, 2), x, eyeHeight);
-    drawImage("eye2d.png", pow(pupilScale, 2), x + screenWidth / 2, eyeHeight);  
-    drawImage("eye2e.png", pupilScale, x, eyeHeight);
-    drawImage("eye2e.png", pupilScale, x + screenWidth / 2, eyeHeight);  
-    drawImage("eye2f.png", pow(pupilScale, 3), x, eyeHeight);
-    drawImage("eye2f.png", pow(pupilScale, 3), x + screenWidth / 2, eyeHeight);  
-    
-    // and some extra decoration
-    drawCropImage("eye2g.png", x, eyeHeight, 0, 1.3, screenWidth, screenHeight, screenWidth/2);
-    drawCropImage("eye2g-flip.png", x, eyeHeight, 0, -1.3, screenWidth, screenHeight, 0);
-    drawCropImage("eye2h.png", x, eyeHeight, 0, 0, screenWidth, screenHeight, screenWidth/2);
-    drawCropImage("eye2h-flip.png", x, eyeHeight, 0, 0, screenWidth, screenHeight, 0);
-    drawCropImage("eye2i.png", x, eyeHeight, 0, 0, screenWidth, screenHeight, screenWidth/2);
-    drawCropImage("eye2i.png", x, eyeHeight, 0, 0, screenWidth, screenHeight, 0);
-    drawCropImage("eye2j.png", x, eyeHeight, 0, 0, screenWidth, screenHeight, screenWidth/2);
-    drawCropImage("eye2j-flip.png", x, eyeHeight, 0, 0, screenWidth, screenHeight, 0);
-    drawCropImage("eye2k.png", x, eyeHeight, 0, 0, screenWidth, screenHeight, screenWidth/2);
-    drawCropImage("eye2k-flip.png", x, eyeHeight, 0, 0, screenWidth, screenHeight, 0);
-    
-    fill(0);
-  }
+
 
 
   
