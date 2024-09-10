@@ -7,6 +7,8 @@
  - GameControlPlus for Processing V3 (c) 2020 Peter Lager
  - Sound (processing standard)
  
+ search for 'CHANGE THIS' to find lines of code where you can easily change important constants.
+ 
  */
 
 import org.gamecontrolplus.gui.*;
@@ -150,11 +152,11 @@ int mode = 0;
 int lastPupilSizeUpdateTime = 0;
 
 //pupil constants
-float minPupilSize = eyeSize * 0.32f;
-float maxPupilSize = eyeSize * 0.7f;
-float basePupilSize = eyeSize * 0.58f;
-float dilationSpeed = 0.1f;
-float contractionSpeed = 0.05f;
+float minPupilSize = eyeSize * 0.32f; // CHANGE THIS IF YOU WANT EXTREMER/LESS EXTREME CONTRAST IN PUPIL SIZE (lower is more contrast
+float maxPupilSize = eyeSize * 0.7f;  // CHANGE THIS IF YOU WANT EXTREMER/LESS EXTREME CONTRAST IN PUPIL SIZE (higher is more contrast)
+float basePupilSize = eyeSize * 0.58f; 
+float dilationSpeed = 0.1f; // CHANGE THIS IF YOU WANT THE PUPILS TO DILATE SLOWER/FASTER (higher is faster)
+float contractionSpeed = 0.05f; // CHANGE THIS IF YOU WANT THE PUPILS TO CONTRACT SLOWER/FASTER (higher is faster)
 int lastEyeMoveTime = 0;
 int eyeMoveThreshold = 200; // Time in milliseconds to consider eyes as focused
 boolean isFocusing = false;
@@ -163,14 +165,20 @@ float focusingProbability = 0.4; // Variable to control the probability of being
 //for animation of calculating
 int currentRotation = 0;
 int lastRotationTime = 0; 
-int rotationInterval = 100;
+int rotationInterval = 100; // CHANGE THIS IF YOU WANT TO CHANGE THE PACE OF THE ROTATION DOTS AROUND THE PUPILS
+//and animation for other decorations
+int currentDecoration = 0;
+int lastDecorationTime = 0;
+int decorationInterval = 500; // CHANGE THIS IF YOU WANT TO CHANGE THE PACE OF SWITCHING EYEBALL DECORATION
 
+// draw an image by filename that can scale (for the pupils)
 public void drawImage(String imageName, float scale, float x, float y) {
   PImage img = loadImage(imageName);
   float scaledSize = img.width*scale;
   image(img, x - scaledSize/2, y - scaledSize/2, scaledSize, scaledSize);
 }
 
+// draw an image that gets cropped in synchronization with the eye movement (for the eyeball decoration)
 public void drawCropImage(String imageName, float x, float y, float xBias, float yBias, int screenWidth, int screenHeight, int xOffset){
   PImage img = loadImage(imageName);
   PImage imgCrop = img.get(int(img.width/2 - x + xBias), int(img.height/2 - y + yBias), screenWidth/2, screenHeight);
@@ -252,40 +260,42 @@ public void drawEyes(int x, int y, boolean blink) {
   if (x<eyeSize/2) x = eyeSize/2;
   if (x>(screenWidth/2-eyeSize/2)) x = (screenWidth/2-eyeSize/2);
   if(sndAngry.isPlaying()) {
-    fill(255, 0, 0, 255);
+    fill(255, 0, 0, 155); //for the irismasks according to emotions, but more transparant than the original design. 
     emotionalState = 4; //angry
   }
   else if (sndCalculate.isPlaying()) {
-    fill(255,255,0,200);
+    fill(255,255,0,100);
     emotionalState = 3; //calculating
   }
   else if (sndNo.isPlaying()) {
-    fill(0,0,255,200);
+    fill(0,0,255,100);
     emotionalState = 2; //sad eyes
   }
   else if (sndYes.isPlaying()) {
-    fill(0,255,0,255);
+    fill(0,255,0,100);
     emotionalState = 1; //happy eyes
   }
   else if (sndBreakdown.isPlaying()) {
-    fill(0,0,0,255);
+    fill(0,0,0,100);
     emotionalState = 5;
   }
   else {
-    fill(0, 255, 100, 200);
+    fill(0, 255, 100, 0);
     emotionalState = 0; //default=neutral
   }
-  stroke(0);
+  noStroke();
   if(mode==0) blink = true;
   //  image(eyeImg, x-144, y-121);
   //  image(eyeImg, x+screenWidth/2-144, y-121);
   
+  // raise/lower the height of the eyes slightly when happy/sad, also to fit the lids. 
   int eyeHeight; 
   if (emotionalState == 1) eyeHeight = y-10;
   else if (emotionalState == 2) eyeHeight = y+5;
   else eyeHeight = y;
   
-  //first the background
+  // now we start drawing the eyes, from back to front. 
+  // first the background
   drawCropImage("bg.png", x, eyeHeight, 0, 0, screenWidth, screenHeight, screenWidth/2);
   drawCropImage("bg.png", x, eyeHeight, 0, 0, screenWidth, screenHeight, 0);
   
@@ -295,29 +305,18 @@ public void drawEyes(int x, int y, boolean blink) {
   drawImage("eye2b.png", 1, x, eyeHeight);
   drawImage("eye2b.png", 1, x + screenWidth / 2, eyeHeight); 
   
+  //extra colormask over the irises for emotional states
+  ellipse(x, eyeHeight, eyeSize, eyeSize);
+  ellipse(x+screenWidth/2, eyeHeight, eyeSize, eyeSize);
+  
   // now the pupils, they resize according to dilation/contraction (some layers more than others with the pow function)
   float pupilScale = pupilSize / (eyeSize/2); 
   drawImage("eye2c.png", pupilScale, x, eyeHeight);
   drawImage("eye2c.png", pupilScale, x + screenWidth / 2, eyeHeight);
-  drawImage("eye2d.png", pow(pupilScale, 2), x, eyeHeight);
-  drawImage("eye2d.png", pow(pupilScale, 2), x + screenWidth / 2, eyeHeight);  
-  drawImage("eye2e.png", pupilScale, x, eyeHeight);
-  drawImage("eye2e.png", pupilScale, x + screenWidth / 2, eyeHeight);  
-  drawImage("eye2f.png", pow(pupilScale, 3), x, eyeHeight);
-  drawImage("eye2f.png", pow(pupilScale, 3), x + screenWidth / 2, eyeHeight);  
   
-  // and some extra decoration
-  drawCropImage("eye2g.png", x, eyeHeight, 0, 1.3, screenWidth, screenHeight, screenWidth/2);
-  drawCropImage("eye2g-flip.png", x, eyeHeight, 0, -1.3, screenWidth, screenHeight, 0);
-  drawCropImage("eye2h.png", x, eyeHeight, 0, 0, screenWidth, screenHeight, screenWidth/2);
-  drawCropImage("eye2h-flip.png", x, eyeHeight, 0, 0, screenWidth, screenHeight, 0);
-  drawCropImage("eye2j.png", x, eyeHeight, 0, 0, screenWidth, screenHeight, screenWidth/2);
-  drawCropImage("eye2j-flip.png", x, eyeHeight, 0, 0, screenWidth, screenHeight, 0);
-  drawCropImage("eye2k.png", x, eyeHeight, 0, 0, screenWidth, screenHeight, screenWidth/2);
-  drawCropImage("eye2k-flip.png", x, eyeHeight, 0, 0, screenWidth, screenHeight, 0);
-  
-  // some calculation animation
+  // one layer of the pupils animates during calculation state of the robot, along with extra rotation decoration
   if (emotionalState == 3) {
+    blink = false;
     String[] rotatingImgs;
     rotatingImgs = new String[8];
     rotatingImgs[0] = "eye2i.png";
@@ -328,25 +327,59 @@ public void drawEyes(int x, int y, boolean blink) {
     rotatingImgs[5] = "eye2i-r5.png";
     rotatingImgs[6] = "eye2i-r6.png";
     rotatingImgs[7] = "eye2i-r7.png";
-      
+    
     int currentTime = millis();
     if (currentTime - lastRotationTime >= rotationInterval) {
       lastRotationTime = currentTime;
       currentRotation = (currentRotation + 1) % rotatingImgs.length;
+      if (currentRotation % 4 == 0) {
+        drawImage("eye2d.png", pow(pupilScale, 2), x, eyeHeight);
+        drawImage("eye2d.png", pow(pupilScale, 2), x + screenWidth / 2, eyeHeight);
+      }
     }
     drawCropImage(rotatingImgs[currentRotation], x, eyeHeight, 0, 0, screenWidth, screenHeight, screenWidth/2);
     drawCropImage(rotatingImgs[currentRotation], x, eyeHeight, 0, 0, screenWidth, screenHeight, 0);
-  
-    
-  
-
   }
-
-  fill(0);
-
-
-
+  else {
+    gpad.getButton("EYELID").pressed();
+    drawImage("eye2d.png", pow(pupilScale, 2), x, eyeHeight);
+    drawImage("eye2d.png", pow(pupilScale, 2), x + screenWidth / 2, eyeHeight);
+  }
+  drawImage("eye2e.png", pupilScale, x, eyeHeight);
+  drawImage("eye2e.png", pupilScale, x + screenWidth / 2, eyeHeight);  
+  drawImage("eye2f.png", pow(pupilScale, 3), x, eyeHeight);
+  drawImage("eye2f.png", pow(pupilScale, 3), x + screenWidth / 2, eyeHeight);  
   
+  // and some extra decoration. the robotic beams going from the center change. at any point 2 out of 3 decorations are displayed. 
+  int currentTime = millis();
+  if (currentTime - lastDecorationTime >= decorationInterval) {
+    lastDecorationTime = currentTime;
+    currentDecoration = (currentDecoration + 1) % 3;
+  }
+  if (currentDecoration == 0) {
+    drawCropImage("eye2g.png", x, eyeHeight, 0, 1.3, screenWidth, screenHeight, screenWidth/2);
+    drawCropImage("eye2g-flip.png", x, eyeHeight, 0, -1.3, screenWidth, screenHeight, 0);
+    drawCropImage("eye2h.png", x, eyeHeight, 0, 0, screenWidth, screenHeight, screenWidth/2);
+    drawCropImage("eye2h-flip.png", x, eyeHeight, 0, 0, screenWidth, screenHeight, 0);
+  } 
+  else if (currentDecoration == 1) {
+    drawCropImage("eye2h.png", x, eyeHeight, 0, 0, screenWidth, screenHeight, screenWidth/2);
+    drawCropImage("eye2h-flip.png", x, eyeHeight, 0, 0, screenWidth, screenHeight, 0);
+    drawCropImage("eye2j.png", x, eyeHeight, 0, 0, screenWidth, screenHeight, screenWidth/2);
+    drawCropImage("eye2j-flip.png", x, eyeHeight, 0, 0, screenWidth, screenHeight, 0);
+  } 
+  else if (currentDecoration == 2) {
+    drawCropImage("eye2j.png", x, eyeHeight, 0, 0, screenWidth, screenHeight, screenWidth/2);
+    drawCropImage("eye2j-flip.png", x, eyeHeight, 0, 0, screenWidth, screenHeight, 0);
+    drawCropImage("eye2g.png", x, eyeHeight, 0, 1.3, screenWidth, screenHeight, screenWidth/2);
+    drawCropImage("eye2g-flip.png", x, eyeHeight, 0, -1.3, screenWidth, screenHeight, 0);
+  } 
+  // here the pink eyeball stains are drawn
+  drawCropImage("eye2k.png", x, eyeHeight, 0, 0, screenWidth, screenHeight, screenWidth/2);
+  drawCropImage("eye2k-flip.png", x, eyeHeight, 0, 0, screenWidth, screenHeight, 0);
+  
+  fill(0); // black for the eyelids
+
   if (blink == true) dLid = -eyeSize/10;
   else dLid = eyeSize/10;
   upperValue += dLid;
